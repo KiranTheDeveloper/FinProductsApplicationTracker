@@ -43,14 +43,14 @@ export default async function ClientsPage({
   return (
     <>
       <Header title="Clients" subtitle={`${clients.length} clients`} />
-      <div className="p-6 space-y-4">
+      <div className="p-4 sm:p-6 space-y-4">
         {/* Search + Filter + Add */}
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-2">
           <ClientsSearchFilter initialSearch={search} initialType={type} />
-          <Button asChild>
+          <Button asChild size="sm" className="flex-shrink-0">
             <Link href="/clients/new">
               <UserPlus className="w-4 h-4" />
-              Add Client
+              <span className="hidden sm:inline">Add Client</span>
             </Link>
           </Button>
         </div>
@@ -75,52 +75,52 @@ export default async function ClientsPage({
               return (
                 <Link key={client.id} href={`/clients/${client.id}`}>
                   <Card className="hover:shadow-md transition-shadow cursor-pointer">
-                    <CardContent className="p-4">
-                      <div className="flex items-center gap-4">
+                    <CardContent className="p-3 sm:p-4">
+                      <div className="flex items-start gap-3">
                         {/* Avatar */}
-                        <div className="w-10 h-10 rounded-full bg-slate-700 flex items-center justify-center flex-shrink-0">
+                        <div className="w-9 h-9 rounded-full bg-slate-700 flex items-center justify-center flex-shrink-0 mt-0.5">
                           <span className="text-sm font-semibold text-slate-300">
                             {client.name.charAt(0).toUpperCase()}
                           </span>
                         </div>
                         {/* Info */}
                         <div className="flex-1 min-w-0">
-                          <div className="flex items-center gap-2">
+                          <div className="flex items-center gap-2 flex-wrap">
                             <p className="font-semibold text-slate-100">{client.name}</p>
                             <Badge className={client.type === "EXISTING_CLIENT" ? "bg-green-900/40 text-green-300" : "bg-slate-700 text-slate-300"}>
                               {client.type === "EXISTING_CLIENT" ? "Client" : "Prospect"}
                             </Badge>
                           </div>
-                          <div className="flex items-center gap-3 mt-1">
+                          <div className="flex items-center gap-3 mt-1 flex-wrap">
                             <span className="flex items-center gap-1 text-xs text-slate-500">
                               <Phone className="w-3 h-3" />
                               {client.mobile}
                             </span>
                             {client.email && (
-                              <span className="flex items-center gap-1 text-xs text-slate-500">
+                              <span className="hidden sm:flex items-center gap-1 text-xs text-slate-500">
                                 <Mail className="w-3 h-3" />
                                 {client.email}
                               </span>
                             )}
                           </div>
-                        </div>
-                        {/* Services */}
-                        <div className="flex items-center gap-2 flex-shrink-0">
-                          {services.map((code) => (
-                            <span
-                              key={code}
-                              className={`text-xs px-2 py-0.5 rounded-full border font-medium ${SERVICE_COLORS[code] || "bg-gray-800 text-gray-300 border-gray-600"}`}
-                            >
-                              {code}
+                          {/* Services + enquiry count — shown below on mobile */}
+                          <div className="flex items-center gap-2 mt-1.5 flex-wrap">
+                            {services.map((code) => (
+                              <span
+                                key={code}
+                                className={`text-xs px-2 py-0.5 rounded-full border font-medium ${SERVICE_COLORS[code] || "bg-gray-800 text-gray-300 border-gray-600"}`}
+                              >
+                                {code}
+                              </span>
+                            ))}
+                            <span className="flex items-center gap-1 text-xs text-slate-400">
+                              <FileText className="w-3 h-3" />
+                              {client._count.enquiries}
                             </span>
-                          ))}
-                          <span className="flex items-center gap-1 text-xs text-slate-400">
-                            <FileText className="w-3 h-3" />
-                            {client._count.enquiries} enquiries
-                          </span>
+                          </div>
                         </div>
-                        {/* Date */}
-                        <p className="text-xs text-slate-400 flex-shrink-0">{formatDate(client.createdAt)}</p>
+                        {/* Date — right side */}
+                        <p className="text-xs text-slate-500 flex-shrink-0">{formatDate(client.createdAt)}</p>
                       </div>
                     </CardContent>
                   </Card>

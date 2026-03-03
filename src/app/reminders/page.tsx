@@ -31,7 +31,7 @@ async function getReminders() {
 
 function ReminderRow({ r, highlight }: { r: Awaited<ReturnType<typeof getReminders>>["overdue"][0]; highlight?: "red" | "amber" }) {
   return (
-    <div className={`flex items-center gap-4 p-4 rounded-lg ${highlight === "red" ? "bg-red-900/30" : highlight === "amber" ? "bg-amber-900/30" : "bg-slate-700/50"}`}>
+    <div className={`flex items-start gap-3 p-3 sm:p-4 rounded-lg ${highlight === "red" ? "bg-red-900/30" : highlight === "amber" ? "bg-amber-900/30" : "bg-slate-700/50"}`}>
       <div className="flex-shrink-0">
         {highlight === "red" ? (
           <AlertCircle className="w-5 h-5 text-red-500" />
@@ -78,7 +78,7 @@ export default async function RemindersPage() {
   return (
     <>
       <Header title="Reminders" subtitle="Follow-up actions and deadlines" />
-      <div className="p-6 space-y-6">
+      <div className="p-4 sm:p-6 space-y-4 sm:space-y-6">
         {/* Overdue */}
         <Card>
           <CardHeader className="pb-3">
