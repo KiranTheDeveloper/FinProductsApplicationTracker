@@ -1,9 +1,15 @@
-import "dotenv/config";
+import { config } from "dotenv";
+config();
+
+import { Pool } from "pg";
+import { PrismaPg } from "@prisma/adapter-pg";
 import { PrismaClient } from "../src/generated/prisma/client";
 
-const prisma = new PrismaClient();
-
 async function main() {
+  const pool = new Pool({ connectionString: process.env.DATABASE_URL });
+  const adapter = new PrismaPg(pool);
+  const prisma = new PrismaClient({ adapter });
+
   console.log("Seeding master data...");
 
   // Life Insurance
@@ -75,13 +81,11 @@ async function main() {
   }
 
   console.log("Seeding complete!");
+  await prisma.$disconnect();
+  await pool.end();
 }
 
-main()
-  .catch((e) => {
-    console.error(e);
-    process.exit(1);
-  })
-  .finally(async () => {
-    await prisma.$disconnect();
-  });
+main().catch((e) => {
+  console.error(e);
+  process.exit(1);
+});
