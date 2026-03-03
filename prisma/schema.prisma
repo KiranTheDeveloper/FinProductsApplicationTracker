@@ -1,0 +1,116 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "sqlite"
+}
+
+// ─── Enums ────────────────────────────────────────────────────────────────────
+
+enum ClientType {
+  PROSPECT
+  EXISTING_CLIENT
+}
+
+enum EnquiryStatus {
+  NEW_ENQUIRY
+  KYC_PENDING
+  KYC_RECEIVED
+  PRODUCT_PROPOSED
+  QUOTE_SHARED
+  CONFIRMATION_RECEIVED
+  DEAL_CLOSED
+  IN_PROGRESS
+  COMPLETED
+  ON_HOLD
+  DROPPED
+}
+
+// ─── Models ───────────────────────────────────────────────────────────────────
+
+model Service {
+  id        String    @id @default(cuid())
+  name      String
+  code      String    @unique // LIFE, HEALTH, MF, ITR
+  products  Product[]
+  enquiries Enquiry[]
+}
+
+model Product {
+  id        String    @id @default(cuid())
+  serviceId String
+  service   Service   @relation(fields: [serviceId], references: [id])
+  name      String    // LIC, Bajaj Life, Star Health, NJ, Salaried, etc.
+  apiSlug   String?   // Reserved for Phase 2 API integration
+  enquiries Enquiry[]
+}
+
+model Client {
+  id        String      @id @default(cuid())
+  name      String
+  mobile    String      @unique
+  email     String?
+  dob       String?     // Store as ISO date string for SQLite compatibility
+  type      ClientType  @default(PROSPECT)
+  createdAt DateTime    @default(now())
+  updatedAt DateTime    @updatedAt
+  enquiries Enquiry[]
+  documents KYCDocument[]
+}
+
+model Enquiry {
+  id               String        @id @default(cuid())
+  clientId         String
+  client           Client        @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  serviceId        String
+  service          Service       @relation(fields: [serviceId], references: [id])
+  productId        String?
+  product          Product?      @relation(fields: [productId], references: [id])
+  status           EnquiryStatus @default(NEW_ENQUIRY)
+  notes            String?
+  premium          Float?
+  sumAssured       Float?        // For insurance products
+  investmentAmount Float?        // For Mutual Funds
+  createdAt        DateTime      @default(now())
+  updatedAt        DateTime      @updatedAt
+  statusHistory    StatusHistory[]
+  reminders        Reminder[]
+  documents        KYCDocument[]
+}
+
+model StatusHistory {
+  id         String        @id @default(cuid())
+  enquiryId  String
+  enquiry    Enquiry       @relation(fields: [enquiryId], references: [id], onDelete: Cascade)
+  fromStatus String?       // Stored as string for SQLite enum compatibility
+  toStatus   String
+  notes      String?
+  changedAt  DateTime      @default(now())
+}
+
+model KYCDocument {
+  id           String   @id @default(cuid())
+  clientId     String
+  client       Client   @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  enquiryId    String?
+  enquiry      Enquiry? @relation(fields: [enquiryId], references: [id])
+  documentType String   // "Aadhar", "PAN", "Passport", "Photo", "Other"
+  fileName     String
+  filePath     String
+  uploadedAt   DateTime @default(now())
+}
+
+model Reminder {
+  id          String   @id @default(cuid())
+  enquiryId   String
+  enquiry     Enquiry  @relation(fields: [enquiryId], references: [id], onDelete: Cascade)
+  dueDate     DateTime
+  message     String
+  isCompleted Boolean  @default(false)
+  createdAt   DateTime @default(now())
+}
