@@ -7,7 +7,8 @@ generator client {
 }
 
 datasource db {
-  provider = "sqlite"
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
 }
 
 // ─── Enums ────────────────────────────────────────────────────────────────────
@@ -55,7 +56,7 @@ model Client {
   name      String
   mobile    String      @unique
   email     String?
-  dob       String?     // Store as ISO date string for SQLite compatibility
+  dob       String?     // Stored as ISO date string (YYYY-MM-DD)
   type      ClientType  @default(PROSPECT)
   createdAt DateTime    @default(now())
   updatedAt DateTime    @updatedAt
@@ -87,7 +88,7 @@ model StatusHistory {
   id         String        @id @default(cuid())
   enquiryId  String
   enquiry    Enquiry       @relation(fields: [enquiryId], references: [id], onDelete: Cascade)
-  fromStatus String?       // Stored as string for SQLite enum compatibility
+  fromStatus String?
   toStatus   String
   notes      String?
   changedAt  DateTime      @default(now())
